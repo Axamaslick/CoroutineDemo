@@ -1,6 +1,8 @@
 package com.example.coroutinedemo
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.widget.SeekBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +14,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,16 +24,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
 
         binding.seekBar.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
@@ -45,14 +43,25 @@ class MainActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) {
             }
+
         })
 
-        suspend fun performTask(tasknumber: Int): Deferred<String> =
-            coroutineScope.async(Dispatchers.Main) {
-                delay(5_000)
-                return@async "Finished Coroutine ${tasknumber}"
+
+    }
+
+    suspend fun performTask(tasknumber: Int): Deferred<String> =
+        coroutineScope.async(Dispatchers.Main) {
+            delay(5_000)
+            return@async "Finished Coroutine ${tasknumber}"
+        }
+
+    fun launchCoroutines(view: View) {
+
+        (1..count).forEach {
+            binding.statusText.text = "Started Coroutine ${it}"
+            coroutineScope.launch(Dispatchers.Main) {
+                binding.statusText.text = performTask(it).await()
             }
-
-
+        }
     }
 }
