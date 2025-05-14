@@ -7,10 +7,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.coroutinedemo.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 
 class MainActivity : AppCompatActivity() {
 
-
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private lateinit var binding: ActivityMainBinding
     private var count: Int = 1
 
@@ -41,6 +46,13 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seek: SeekBar) {
             }
         })
+
+        suspend fun performTask(tasknumber: Int): Deferred<String> =
+            coroutineScope.async(Dispatchers.Main) {
+                delay(5_000)
+                return@async "Finished Coroutine ${tasknumber}"
+            }
+
 
     }
 }
